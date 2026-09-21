@@ -27,5 +27,6 @@ class CatalogEntry:
     table_name: str
     summary: str
     domain: str
+    host: str = ""
     columns: tuple[ColumnDetail, ...] = field(default_factory=tuple)
     synced_at: datetime | None = None

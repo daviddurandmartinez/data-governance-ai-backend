@@ -1,5 +1,7 @@
 from typing import Protocol
 
+from sqlalchemy import Engine
+
 from src.modules.data_catalog.domain.entities import CatalogEntry, DataSource
 
 
@@ -9,7 +11,7 @@ class IExtractor(Protocol):
 
 
 class IEnricher(Protocol):
-    def enrich(self, raw_metadata: dict, data_source_id: str) -> CatalogEntry: ...
+    def enrich(self, raw_metadata: dict, data_source_id: str, host: str) -> CatalogEntry: ...
 
 
 class ICatalogRepository(Protocol):
@@ -20,5 +22,7 @@ class ICatalogRepository(Protocol):
 
 
 class IDataSourceRepository(Protocol):
+    def set_connection(self, host: str, port: int, user: str, password: str) -> list[DataSource]: ...
     def get_all(self) -> list[DataSource]: ...
     def get_by_id(self, data_source_id: str) -> DataSource | None: ...
+    def get_engine(self, data_source: DataSource) -> Engine: ...

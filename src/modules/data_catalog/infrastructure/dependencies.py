@@ -17,7 +17,7 @@ from src.settings import settings
 
 @lru_cache(maxsize=1)
 def get_ds_repository() -> DataSourceRepository:
-    return DataSourceRepository(settings)
+    return DataSourceRepository()
 
 
 @lru_cache(maxsize=1)

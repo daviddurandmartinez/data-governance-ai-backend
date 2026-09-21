@@ -10,6 +10,7 @@ from src.shared.exceptions import ExtractionError
 logger = logging.getLogger(__name__)
 
 _SAFE_IDENTIFIER = re.compile(r"^[A-Za-z0-9_\.]+$")
+_SYSTEM_SCHEMAS = frozenset({"sys", "information_schema", "guest"})
 
 
 def _validate_identifier(name: str) -> str:
@@ -40,9 +41,13 @@ class SqlServerExtractor:
     def _list_tables_sync(self) -> list[str]:
         with self._engine.connect() as conn:
             inspector = inspect(conn)
-            schema = self._data_source.default_schema
-            tables = inspector.get_table_names(schema=schema)
-            return [f"{schema}.{t}" for t in tables]
+            all_schemas = inspector.get_schema_names()
+            user_schemas = [s for s in all_schemas if s.lower() not in _SYSTEM_SCHEMAS]
+            tables: list[str] = []
+            for schema in user_schemas:
+                for t in inspector.get_table_names(schema=schema):
+                    tables.append(f"{schema}.{t}")
+            return sorted(tables)
 
     def _extract_sync(self, table_name: str) -> dict:
         with self._engine.connect() as conn:

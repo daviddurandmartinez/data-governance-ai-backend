@@ -1,5 +1,5 @@
 import json
-from datetime import UTC, datetime
+from datetime import datetime
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -34,11 +34,12 @@ class CatalogRepository:
             ensure_ascii=False,
         )
 
-        synced_at = entry.synced_at or datetime.now(UTC)
+        synced_at = entry.synced_at or datetime.now()
 
         if existing:
             existing.summary = entry.summary
             existing.domain = entry.domain
+            existing.host = entry.host
             existing.columns_json = columns_json
             existing.synced_at = synced_at
         else:
@@ -47,6 +48,7 @@ class CatalogRepository:
                 table_name=entry.table_name,
                 summary=entry.summary,
                 domain=entry.domain,
+                host=entry.host,
                 columns_json=columns_json,
                 synced_at=synced_at,
             )
@@ -85,6 +87,7 @@ class CatalogRepository:
             table_name=orm.table_name,
             summary=orm.summary,
             domain=orm.domain,
+            host=orm.host,
             columns=tuple(ColumnDetail(**col) for col in columns_data),
             synced_at=orm.synced_at,
         )

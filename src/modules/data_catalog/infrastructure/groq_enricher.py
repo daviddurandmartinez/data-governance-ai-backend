@@ -1,5 +1,5 @@
 import json
-from datetime import UTC, datetime
+from datetime import datetime
 from groq import Groq
 from pydantic import BaseModel, Field
 from src.modules.data_catalog.domain.entities import CatalogEntry, ColumnDetail
@@ -36,7 +36,7 @@ class GroqEnricher:
             "NO incluyas campos adicionales como data_source_id, solo los 4 campos indicados."
         )
 
-    def enrich(self, raw_metadata: dict, data_source_id: str) -> CatalogEntry:
+    def enrich(self, raw_metadata: dict, data_source_id: str, host: str) -> CatalogEntry:
         try:
             user_prompt = (
                 f"Analiza la siguiente estructura de tabla y genera su catálogo.\n"
@@ -72,8 +72,9 @@ class GroqEnricher:
                 table_name=parsed.table_name,
                 summary=parsed.summary,
                 domain=parsed.domain,
+                host=host,
                 columns=columns,
-                synced_at=datetime.now(UTC),
+                synced_at=datetime.now(),
             )
         except EnrichmentError:
             raise

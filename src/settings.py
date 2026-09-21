@@ -26,10 +26,6 @@ class Settings(BaseSettings):
     CORS_ORIGINS: str = "http://localhost:3000"
 
     @property
-    def is_db_discovery_enabled(self) -> bool:
-        return bool(self.SQL_SERVER_HOST and self.SQL_SERVER_USER and self.SQL_SERVER_PASSWORD)
-
-    @property
     def cors_origins(self) -> list[str]:
         return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
 

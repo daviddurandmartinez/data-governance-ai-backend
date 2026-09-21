@@ -9,6 +9,8 @@ from src.modules.data_catalog.infrastructure.dependencies import (
 )
 from src.modules.data_catalog.presentation.schemas import (
     BatchSyncOutput,
+    ConnectionRequest,
+    ConnectionResponse,
     DataSourceResponse,
     SyncAllOutput,
     TableListResponse,
@@ -21,6 +23,20 @@ router = APIRouter(prefix="/api/v1", tags=["catalog"])
 @router.get("/health")
 def health_check():
     return {"status": "ok"}
+
+
+@router.post("/connection", response_model=ConnectionResponse)
+def connect(body: ConnectionRequest, ds_repo=Depends(get_ds_repository)):
+    sources = ds_repo.set_connection(
+        host=body.host,
+        port=body.port,
+        user=body.user,
+        password=body.password,
+    )
+    return ConnectionResponse(
+        status="connected",
+        databases=[ds.database_name for ds in sources],
+    )
 
 
 @router.get("/datasources", response_model=list[DataSourceResponse])

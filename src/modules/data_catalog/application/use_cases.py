@@ -1,4 +1,5 @@
 from collections.abc import Callable
+
 from src.modules.data_catalog.domain.entities import DataSource
 from src.modules.data_catalog.domain.ports import (
     ICatalogRepository,
@@ -32,7 +33,7 @@ class SyncCatalogUseCase:
 
         extractor = self._extractor_factory(ds)
         raw_metadata = extractor.extract(table_name)
-        catalog_entry = self._enricher.enrich(raw_metadata, data_source_id)
+        catalog_entry = self._enricher.enrich(raw_metadata, data_source_id, ds.host)
         self._catalog_repository.upsert(catalog_entry)
 
         return {
@@ -40,6 +41,7 @@ class SyncCatalogUseCase:
             "table_name": catalog_entry.table_name,
             "summary": catalog_entry.summary,
             "domain": catalog_entry.domain,
+            "host": catalog_entry.host,
             "columns_count": len(catalog_entry.columns),
             "synced_at": catalog_entry.synced_at.isoformat() if catalog_entry.synced_at else None,
             "error": None,
@@ -71,7 +73,7 @@ class SyncCatalogUseCase:
         for table in table_names:
             try:
                 raw_metadata = extractor.extract(table)
-                catalog_entry = self._enricher.enrich(raw_metadata, data_source_id)
+                catalog_entry = self._enricher.enrich(raw_metadata, data_source_id, ds.host)
             except Exception as e:
                 errors += 1
                 results.append({
@@ -96,6 +98,7 @@ class SyncCatalogUseCase:
                 "table_name": catalog_entry.table_name,
                 "summary": catalog_entry.summary,
                 "domain": catalog_entry.domain,
+                "host": catalog_entry.host,
                 "columns_count": len(catalog_entry.columns),
                 "synced_at": catalog_entry.synced_at.isoformat() if catalog_entry.synced_at else None,
                 "error": None if persisted else "Extracted but not persisted to catalog",

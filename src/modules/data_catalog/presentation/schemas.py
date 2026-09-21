@@ -1,6 +1,18 @@
 from pydantic import BaseModel
 
 
+class ConnectionRequest(BaseModel):
+    host: str
+    port: int = 1433
+    user: str
+    password: str
+
+
+class ConnectionResponse(BaseModel):
+    status: str
+    databases: list[str]
+
+
 class DataSourceResponse(BaseModel):
     id: str
     name: str
@@ -20,6 +32,7 @@ class SyncOutput(BaseModel):
     table_name: str
     summary: str
     domain: str
+    host: str = ""
     columns_count: int
     synced_at: str | None = None
     error: str | None = None
